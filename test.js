@@ -37,6 +37,33 @@ var setDigits = function(password) {
 	global.digits.reverse();
 }
 
+//Generate ontime using the normalized bounding algorithm
+var generateOntime = function(digit) {
+    var x1 = Math.random();
+    console.log('x1: ', x1);
+    
+    var m = Math.floor(370 + x1*630);
+    var M = Math.floor((7*m - 1800)/2);
+    
+    //var m = 600;
+    //var M = 1200;
+        
+    var mew1 = (M+m)/2;
+    
+    console.log('m:',m ,' M:',M, ' mew1:', mew1, ' mew5:', mew1*5);
+    
+    var cf = 5*mew1 - digit*mew1;
+    var x2 = Math.random();
+    
+    var genDelay = Math.floor(m + x2*(M-m));
+    
+    var delay = genDelay + cf/digit;
+    
+    console.log('cf: ', cf, ' genDelay: ',genDelay, ' delay:', delay,' delay*digit:', delay*digit);
+    return delay;
+};
+
+
 //Synchronous Delay
 var delay = function(ms) {
         var cur_ticks = Date.now(); //cur_d = Date.now();
@@ -78,7 +105,8 @@ var buttonAction = function(err, state) {
 	var input = button.readSync();
 	while(input === 0) {
 		input = button.readSync();
-		if(input === 0) { count++; vibrate(300,400); }
+		var ontime = generateOntime(currDigit);
+		if(input === 0) { count++; vibrate(ontime,400); }
 	}
 	//Analyze counts held
 	if(count === currDigit) { 
