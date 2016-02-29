@@ -3,5 +3,7 @@ module.exports = {
 	password : 123,
 	length : 3,
 	digits : [],
+	attempts : 0,
+	index : 0
 };
 

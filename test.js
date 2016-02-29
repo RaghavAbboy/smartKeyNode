@@ -10,10 +10,14 @@ button = new Gpio(18, 'in', 'both');
 //Helpers
 var global = require('./global.js');
 
+//Variables
+var count = 0;
+
 //------------------------------------------------------------
 //Helper functions
 var initGlobal = function() {
 	setPassword(123);
+	count = 0;
 }
 
 var setPassword = function(password) {
@@ -31,26 +35,68 @@ var setDigits = function(password) {
 		num = Math.floor(num/10);
 	}
 	global.digits.reverse();
+}
+
+//Synchronous Delay
+var delay = function(ms) {
+        var cur_ticks = Date.now(); //cur_d = Date.now();
+        //var cur_ticks = cur_d.getTime();
+        var ms_passed = 0;
+        while(ms_passed < ms) {
+            var ticks = Date.now();//d = Date.now(); 
+            //var ticks = d.getTime();
+            ms_passed = ticks - cur_ticks;
+        }
+}
+
+
+//Vibrate the motor with an on and off time (ms)
+var vibrate = function(ontime, offtime) {
+	motor.writeSync(1);
+	delay(ontime);
+	motor.writeSync(0);
+	delay(offtime);
 }	
+
 //------------------------------------------------------------
-
 //Standby Logic
-//initGlobal();
+initGlobal();
 setPassword(8437934);
-console.log('Global object:', global);
-
 
 //------------------------------------------------------------
 //Events and Listeners
 
 //Action on a button press
 var buttonAction = function(err, state) {
+	//base case: neglect rising edge interrupts
+	if(state === 1) { return; }
+	
+	var currDigit = global.digits[global.index];
+	count = 0;
+	console.log('Digit to unlock: ', currDigit);	
+
 	var input = button.readSync();
-	while(input == 0) {
+	while(input === 0) {
 		input = button.readSync();
-		console.log('Pressed...');
+		if(input === 0) { count++; vibrate(300,400); }
 	}
-	console.log('Interrupt triggered. State:', state, ' Input:', input, '\n');
+	//Analyze counts held
+	if(count === currDigit) { 
+		console.log('Digit ', currDigit, ' unlocked!');
+		global.index++;
+	}
+	else {
+		global.attempts++;
+		global.index = 0;
+		console.log('Authentication failed. Attempts: ', global.attempts);
+	}
+
+	if(global.index === global.length) {
+		console.log('Welcome Home!');
+		global.index = 0;
+	}
+
+	//console.log('Interrupt triggered. Init State:', state, ' Curr Input:', input, '\n');
 }
 
 //Event listeners
