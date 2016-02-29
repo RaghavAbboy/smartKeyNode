@@ -61,7 +61,7 @@ var vibrate = function(ontime, offtime) {
 //------------------------------------------------------------
 //Standby Logic
 initGlobal();
-setPassword(8437934);
+//setPassword(8437934);
 
 //------------------------------------------------------------
 //Events and Listeners
@@ -94,6 +94,7 @@ var buttonAction = function(err, state) {
 	if(global.index === global.length) {
 		console.log('Welcome Home!');
 		global.index = 0;
+		global.attempts = 0;
 	}
 
 	//console.log('Interrupt triggered. Init State:', state, ' Curr Input:', input, '\n');
