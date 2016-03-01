@@ -140,9 +140,13 @@ app.get('/', function(request, response) {
 	response.send('Raghav Abboy\'s Pi: Hello.\n');
 });
 
-app.listen(3000, '192.168.43.193', function() {
+app.listen(3000, function() {
 	console.log('App listening on port 3000.\n');
 });
+
+//app.listen(3000, '192.168.43.193', function() {
+//	console.log('App listening on port 3000.\n');
+//});
 //------------------------------------------------------------
 
 //------------------------------------------------------------
