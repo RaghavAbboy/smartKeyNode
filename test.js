@@ -1,6 +1,18 @@
 //Dependencies - Packages
 var express = require('express');
 var app = express();
+var cors = require('cors');
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
+var morgan = require('morgan');
+var bodyParser = require('body-parser');
+
+//Middleware
+app.use(morgan('dev'));
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json());
+app.use(cors());
+
 var Gpio = require('onoff').Gpio,
 
 //Initialize ports and pins
@@ -132,21 +144,35 @@ var buttonAction = function(err, state) {
 button.watch(buttonAction);
 //------------------------------------------------------------
 
+//Socket Handlers
+io.on('connection', function(socket) {
+	console.log('a user connected');
+});
+
 
 //------------------------------------------------------------
 //HTTP client handlers
 //Get request
 app.get('/', function(request, response) {
-	response.send('Raghav Abboy\'s Pi: Hello.\n');
+	console.log('Get request received.', request.headers);
+	//response.send('Raghav Abboy\'s Pi: Hello.\n');
+	response.status(200).send(JSON.stringify(global));
 });
 
-app.listen(3000, function() {
-	console.log('App listening on port 3000.\n');
+//POST Request
+app.post('/', function (req, res) {
+	var data = +Object.keys(req.body)[0];
+	console.log('POST request received! Data:', data);
+	res.status(200).send('test.js says: Thanks!');
 });
 
-//app.listen(3000, '192.168.43.193', function() {
+//app.listen(3000, function() {
 //	console.log('App listening on port 3000.\n');
 //});
+
+app.listen(3000, '192.168.43.193', function() {
+	console.log('App listening on port 3000.\n');
+});
 //------------------------------------------------------------
 
 //------------------------------------------------------------
