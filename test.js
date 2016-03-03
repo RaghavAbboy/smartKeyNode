@@ -15,22 +15,6 @@ raspi.init(function() {
 	pwm.write(94); //(94);
 });
 
-//----------------------------------------------------------
-//Servo Control
-//Turn left
-var closeDoor = function() {
-	pwm.write(94); //97
-}
-
-var openDoor = function() {
-	pwm.write(48); //56
-}
-
-var grantAccess = function() {
-	openDoor();
-	setTimeout(closeDoor, 3000);
-};
-
 app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
@@ -40,7 +24,10 @@ var Gpio = require('onoff').Gpio,
 
 //Initialize ports and pins
 motor = new Gpio(17, 'out'),
-button = new Gpio(18, 'in', 'both');
+button = new Gpio(18, 'in', 'both'),
+r = new Gpio(20, 'out'),
+g = new Gpio(16, 'out'),
+b = new Gpio(21, 'out');
 
 //Helpers
 var global = require('./global.js');
@@ -49,6 +36,36 @@ var global = require('./global.js');
 var count = 0;
 
 //------------------------------------------------------------
+
+var red = function() {
+	r.writeSync(1);
+	g.writeSync(0);
+	b.writeSync(0);
+}
+
+var green = function() {
+	r.writeSync(0);
+	g.writeSync(1);
+	b.writeSync(0);
+}
+
+//----------------------------------------------------------
+//Servo Control
+//Turn left
+var closeDoor = function() {
+	pwm.write(94); //97
+	red();
+}
+
+var openDoor = function() {
+	pwm.write(48); //56
+	green();
+}
+
+var grantAccess = function() {
+	openDoor();
+	setTimeout(closeDoor, 3000);
+};
 
 
 //Helper functions
@@ -126,7 +143,8 @@ var vibrate = function(ontime, offtime) {
 //------------------------------------------------------------
 //Standby Logic
 initGlobal();
-
+red();
+//setTimeout(green, 3000);
 //setPassword(8437934);
 
 //------------------------------------------------------------
