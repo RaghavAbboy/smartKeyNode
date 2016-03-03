@@ -6,6 +6,28 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var morgan = require('morgan');
 var bodyParser = require('body-parser');
+var raspi = require('raspi');
+var PWM = require('raspi-pwm').PWM;
+
+var pwm;
+raspi.init(function() {
+	pwm = new PWM('GPIO19');
+	pwm.write(94);
+});
+
+//----------------------------------------------------------
+//Servo Control
+//Turn left
+var closeDoor = function() {
+	pwm.write(94); //97
+}
+
+var openDoor = function() {
+	pwm.write(48); //56
+}
+
+//setTimeout(closeDoor, 3000);
+//setTimeout(openDoor, 3000);
 
 //Middleware
 app.use(morgan('dev'));
@@ -26,14 +48,16 @@ var global = require('./global.js');
 var count = 0;
 
 //------------------------------------------------------------
+
+
 //Helper functions
 var initGlobal = function() {
-	setPassword(123);
+	setPassword(global.password);
 	count = 0;
 }
 
 var setPassword = function(password) {
-	global.password = password;
+	//global.password = password;
 	global.length = JSON.stringify(password).length;
 	setDigits(password);
 }
@@ -52,7 +76,7 @@ var setDigits = function(password) {
 //Generate ontime using the normalized bounding algorithm
 var generateOntime = function(digit) {
     var x1 = Math.random();
-    console.log('x1: ', x1);
+    //console.log('x1: ', x1);
     
     var m = Math.floor(370 + x1*630);
     var M = Math.floor((7*m - 1800)/2);
@@ -62,16 +86,17 @@ var generateOntime = function(digit) {
         
     var mew1 = (M+m)/2;
     
-    console.log('m:',m ,' M:',M, ' mew1:', mew1, ' mew5:', mew1*5);
+    //console.log('m:',m ,' M:',M, ' mew1:', mew1, ' mew5:', mew1*5);
     
     var cf = 5*mew1 - digit*mew1;
     var x2 = Math.random();
     
     var genDelay = Math.floor(m + x2*(M-m));
     
-    var delay = genDelay + cf/digit;
+    var delay = Math.floor(genDelay + cf/digit);
     
-    console.log('cf: ', cf, ' genDelay: ',genDelay, ' delay:', delay,' delay*digit:', delay*digit);
+    //console.log('cf: ', cf, ' genDelay: ',genDelay, ' delay:', delay,' delay*digit:', delay*digit);
+	console.log('Delay:', delay);
     return delay;
 };
 
@@ -144,17 +169,12 @@ var buttonAction = function(err, state) {
 button.watch(buttonAction);
 //------------------------------------------------------------
 
-//Socket Handlers
-io.on('connection', function(socket) {
-	console.log('a user connected');
-});
-
 
 //------------------------------------------------------------
 //HTTP client handlers
 //Get request
 app.get('/', function(request, response) {
-	console.log('Get request received.', request.headers);
+	//console.log('Get request received.', request.headers);
 	//response.send('Raghav Abboy\'s Pi: Hello.\n');
 	response.status(200).send(JSON.stringify(global));
 });
