@@ -26,8 +26,11 @@ var openDoor = function() {
 	pwm.write(48); //56
 }
 
-//setTimeout(closeDoor, 3000);
-//setTimeout(openDoor, 3000);
+var grantAccess = function() {
+	openDoor();
+	setTimeout(closeDoor, 3000);
+};
+
 
 //Middleware
 app.use(morgan('dev'));
@@ -158,6 +161,7 @@ var buttonAction = function(err, state) {
 
 	if(global.index === global.length) {
 		console.log('Welcome Home!');
+		grantAccess();
 		global.index = 0;
 		global.attempts = 0;
 	}
@@ -183,6 +187,7 @@ app.get('/', function(request, response) {
 app.post('/', function (req, res) {
 	var data = +Object.keys(req.body)[0];
 	console.log('POST request received! Data:', data);
+	if(data === 1) { grantAccess(); }
 	res.status(200).send('test.js says: Thanks!');
 });
 
