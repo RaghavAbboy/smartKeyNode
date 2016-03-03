@@ -12,7 +12,7 @@ var PWM = require('raspi-pwm').PWM;
 var pwm;
 raspi.init(function() {
 	pwm = new PWM('GPIO19');
-	pwm.write(94);
+	pwm.write(94); //(94);
 });
 
 //----------------------------------------------------------
@@ -31,8 +31,6 @@ var grantAccess = function() {
 	setTimeout(closeDoor, 3000);
 };
 
-
-//Middleware
 app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
@@ -128,6 +126,7 @@ var vibrate = function(ontime, offtime) {
 //------------------------------------------------------------
 //Standby Logic
 initGlobal();
+
 //setPassword(8437934);
 
 //------------------------------------------------------------
